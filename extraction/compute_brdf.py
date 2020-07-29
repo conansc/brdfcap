@@ -2,10 +2,15 @@ import argparse
 import brdfext
 
 
+"""
+ © Sebastian Cucerca
+"""
+
+
 def get_args():
     """
-     Parses arguments passed by user.
-     © Sebastian Cucerca
+    Parses arguments passed by user.
+    :return: Arguments
     """
 
     #
