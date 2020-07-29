@@ -11,6 +11,14 @@ import cv2
 
 
 def get_patch_img_pts(img, thresh_low, thresh_up, patch_area):
+    """
+    Computes points within white patch
+    :param img: Calibration image
+    :param thresh_low: Lower color thresholds
+    :param thresh_up: Upper color thresholds
+    :param patch_area: Area in image to consider
+    :return: List with image coordinates belonging to white patch
+    """
 
     logging.info("Compute image coordinates for normalization patch.")
 
@@ -55,9 +63,15 @@ def get_patch_img_pts(img, thresh_low, thresh_up, patch_area):
     return in_pts
 
 
-def get_cylinder_pts(lower_corners, upper_corners, marker_pos, marker_length, cyl_rad, ):
+def get_cylinder_pts(lower_corners, upper_corners, marker_pos, marker_length, cyl_rad):
     """
-     TODO
+    Compute corresponding coordinates of image (2D) and object points (3D)
+    :param lower_corners: Lower corner points
+    :param upper_corners: Upper corner points
+    :param marker_pos: Marker position on cylinder
+    :param marker_length: Size of one side of marker
+    :param cyl_rad: Radius of cylinder (without applied sample)
+    :return: List with corresponding image and object points
     """
 
     logging.info("Compute cylinder center")
@@ -84,6 +98,15 @@ def get_cylinder_pts(lower_corners, upper_corners, marker_pos, marker_length, cy
 
 
 def compute_contours(img, marker_area, marker_cnt, marker_thresh_low, marker_thresh_up):
+    """
+    Compute contour of markers on cylinder in calibration image
+    :param img: Calibration image
+    :param marker_area:
+    :param marker_cnt: Number of markers
+    :param marker_thresh_low: Lower color thresholds
+    :param marker_thresh_up: Upper colors thresholds
+    :return: Contours of markers in calibration image
+    """
 
     thresh_low = np.array(marker_thresh_low)
     thresh_up = np.array(marker_thresh_up)
@@ -111,7 +134,11 @@ def compute_contours(img, marker_area, marker_cnt, marker_thresh_low, marker_thr
 
 def compute_corners(contours, img_shape):
     """
-     TODO
+    Computes corner points of contours
+    :param contours: Input contours
+    :param img_shape: Shape of calibration image
+    :return: List with sorted upper corner points on cylinder and
+                       sorted lower corner points on cylinder
     """
 
     h, w, _ = img_shape
@@ -158,7 +185,9 @@ def compute_corners(contours, img_shape):
 
 def _get_max_dist_pts(pts):
     """
-     TODO
+    Computes four points with highest distance to each other
+    :param pts: Input points
+    :return: List with four points having maximum distance to each other
     """
 
     dist_vec = ssd.pdist(pts)
@@ -181,7 +210,11 @@ def _get_max_dist_pts(pts):
 
 def _get_farthermost_pt(dist_mat, ids):
     """
-     TODO
+    Compute farthermost two points
+    :param dist_mat: Distance matrix of points
+    :param ids: Indices of points to consider
+    :return: List with indices of farthermost points and
+                       distance between both points
     """
 
     full_dists = np.zeros(dist_mat.shape[0])
@@ -196,27 +229,11 @@ def _get_farthermost_pt(dist_mat, ids):
     return [max_idx, max_val]
 
 
-def _remove_corners(corner_pts, p1, p2, thresh_div=2):
-    """
-     TODO
-    """
-
-    thresh = np.linalg.norm(p1 - p2) / thresh_div
-
-    max_pts = np.vstack((p1, p2))
-    dist_vec = ssd.cdist(max_pts, corner_pts)
-
-    rem_idx = np.argwhere(dist_vec < thresh)
-    rem_idx = rem_idx[:, 1]
-    rem_idx = np.unique(rem_idx)
-
-    shrinked_corner_pts = np.delete(corner_pts, rem_idx, 0)
-    return shrinked_corner_pts
-
-
 def _sort_pts(pts):
     """
-     TODO
+    Sort points along axis with highest deviation
+    :param pts: Input points
+    :return: Sorted points
     """
 
     x_diff = np.max(pts[:, 0]) - np.min(pts[:, 0])
@@ -230,41 +247,14 @@ def _sort_pts(pts):
     return sorted_pts
 
 
-def _get_contours_center(corner_img, upper_cnt_pts, lower_cnt_pts):
-    """
-     TODO
-    """
-
-    gray = cv2.cvtColor(corner_img, cv2.COLOR_BGR2GRAY)
-    _, contours, _ = cv2.findContours(gray, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    cv2.drawContours(gray, contours, -1, [255, 255, 255])
-
-    curr_cnt_pts = []
-    for cnt in contours:
-        mom = cv2.moments(cnt)
-        if mom['m00'] == 0.0:
-            continue
-        cx = int(mom['m10'] / mom['m00'])
-        cy = int(mom['m01'] / mom['m00'])
-        curr_cnt_pts.append([cx, cy])
-
-    curr_cnt_pts = np.array(curr_cnt_pts)
-    sort_ids = np.argsort(curr_cnt_pts[:, 0])
-    upper_ids = sort_ids[:2]
-    lower_ids = sort_ids[2:]
-
-    for idx in upper_ids:
-        curr_cnt_pt = curr_cnt_pts[idx]
-        upper_cnt_pts.append(curr_cnt_pt)
-
-    for idx in lower_ids:
-        curr_cnt_pt = curr_cnt_pts[idx]
-        lower_cnt_pts.append(curr_cnt_pt)
-
-
 def _get_obj_point(idx, y, arc, cyl_rad):
     """
-     TODO
+    Get coordinates of point (3D) on cylinder hull
+    :param idx: Current step
+    :param y: Height
+    :param arc: Degrees per step
+    :param cyl_rad: Radius of cylinder
+    :return: Coordinates of point (3D)
     """
 
     # Derived from the formula (2*pi) * (arc / (2*pi*cyl_rad))
@@ -278,6 +268,16 @@ def _get_obj_point(idx, y, arc, cyl_rad):
 
 
 def threshold(img, lows, ups, area):
+    """
+    Thresholds areas in image
+    :param img: Calibration image
+    :param lows: Lower color thresholds
+    :param ups: Upper colors thresholds
+    :param area: Areas to threshold in image
+    :return: List with threshold mask,
+                       image used for detection (considering areas) and
+                       detection image in HSV space
+    """
 
     det_img = np.zeros(img.shape, dtype=img.dtype)
     ulc = area[0]

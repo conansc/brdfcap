@@ -13,7 +13,13 @@ import os
 
 def get_ldr_vals(path, raw_ext, pts_ids_list, white_lvl, nb_corr):
     """
-    TODO
+    Loads LDR values from images
+    :param path: Path to images
+    :param raw_ext: Extension of RAW files
+    :param pts_ids_list: Indices to load from images
+    :param white_lvl: White level
+    :param nb_corr: Apply neighbor correction
+    :return: LDR values
     """
 
     #
@@ -73,7 +79,13 @@ def get_ldr_vals(path, raw_ext, pts_ids_list, white_lvl, nb_corr):
 
 def _correct_pair(ldr_vals, exp_times, i, j, pix_thresh):
     """
-    TODO
+    Corrects neighbored pairs of LDR values
+    :param ldr_vals: LDR values
+    :param exp_times: Exposure times
+    :param i: Index of first pairs of LDR values
+    :param j: Index of second pairs of LDR values
+    :param pix_thresh: Threshold for LDR values to consider
+    :return: Corrected pairs of LDR values
     """
 
     prev_exp = exp_times[i]
@@ -114,7 +126,10 @@ def _correct_pair(ldr_vals, exp_times, i, j, pix_thresh):
 
 def _correct_ldr_vals(ldr_vals, exp_times):
     """
-    TODO
+    Corrects LDR values by using neighbor correction method
+    :param ldr_vals: LDR values
+    :param exp_times: Exposure times
+    :return: Corrected LDR values
     """
 
     logging.info("Correct LDR images")
@@ -131,12 +146,14 @@ def _correct_ldr_vals(ldr_vals, exp_times):
     return ldr_vals
 
 
-def get_n_brightest_pts(ldr_vals, samp_rate):
+def get_n_brightest_pts(ldr_vals, n):
     """
-    TODO
+    Load brightest points in list of LDR values
+    :param ldr_vals: LDR values
+    :param n: Number of brightest points
+    :return: Indices of brightest points in list of LDR values
     """
 
-    n = samp_rate
     d = ldr_vals.shape[0]
     filter_ids = np.array([], dtype=np.int)
 

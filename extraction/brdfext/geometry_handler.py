@@ -11,7 +11,14 @@ import cv2
 
 def compute_geometric_values(world_pts, cyl_trans, cyl_rot, cam_trans, ori, light_trans):
     """
-     TODO
+    Computes geometric values for points on cylinder
+    :param world_pts: World coordinates for points (3D)
+    :param cyl_trans: Cylinder translation vector
+    :param cyl_rot: Cylinder rotation
+    :param cam_trans: Camera translation vector
+    :param ori: Rotation of sample
+    :param light_trans: Light translation vector
+    :return: List with geometric values
     """
 
     logging.info("Computing geometric values")
@@ -96,6 +103,19 @@ def compute_geometric_values(world_pts, cyl_trans, cyl_rot, cam_trans, ori, ligh
 
 
 def mirror_max_pt(ills, world_object_points, norm_vecs, out_vecs, heights, light_dist, samp_rad, samp_rate):
+    """
+    Mirror camera ray at averaged position of multiple points on cylinder
+    and compute light position along reflected ray
+    :param ills: Illuminations
+    :param world_object_points: World coordiantes (3D)
+    :param norm_vecs: Normal vectors
+    :param out_vecs: Out vectors
+    :param heights: Heights on cylinder axis
+    :param light_dist: Distance between light and cylinder
+    :param samp_rad: Radius of cylinder with applied sample
+    :param samp_rate: Number of brightest points to average
+    :return: Light position and height relative to camera
+    """
 
     logging.info("Computing light position.")
 
@@ -122,7 +142,9 @@ def mirror_max_pt(ills, world_object_points, norm_vecs, out_vecs, heights, light
 
 def _normalize_vector(vec):
     """
-     TODO
+    Normalize vector to unit vector
+    :param vec: Input vector
+    :return: Normalized vector
     """
     denom = np.linalg.norm(vec)
     if denom == 0:
@@ -132,7 +154,10 @@ def _normalize_vector(vec):
 
 def _normalize_vectors(vecs, dim=1):
     """
-     TODO
+    Normalize vectors to unit vectors
+    :param vecs: Input vectors
+    :param dim: Dimension to normalized along
+    :return: Normalized vectors
     """
     norms = np.linalg.norm(vecs, axis=dim, keepdims=True)
     norms[norms == 0] = 1
@@ -142,7 +167,10 @@ def _normalize_vectors(vecs, dim=1):
 
 def _project_multiple(vecs, norms):
     """
-     TODO
+    Project vectors onto other vectors
+    :param vecs: Input vectors
+    :param norms: Vectors to project onto
+    :return: Normalized projected vectors
     """
 
     proj = _row_wise_dot(vecs, norms)
@@ -155,7 +183,11 @@ def _project_multiple(vecs, norms):
 
 def _angles_between(vecs1, vecs2, norm_vecs=None):
     """
-     TODO
+    Compute angle between pairs of vectors
+    :param vecs1: First set of vectors
+    :param vecs2: Second set of vectors
+    :param norm_vecs: Check if angles pass 180 degrees
+    :return: Angles between vectors
     """
 
     angs = _row_wise_dot(vecs1, vecs2)
@@ -172,7 +204,11 @@ def _angles_between(vecs1, vecs2, norm_vecs=None):
 
 def _rotate_around_axis(axes, vecs, deg):
     """
-     TODO
+    Rotate vectors around axes
+    :param axes: Rotation axes
+    :param vecs: Input vectors
+    :param deg: Rotate by (in degrees)
+    :return: Rotated vectors
     """
 
     vecs = np.asarray(vecs)
@@ -218,13 +254,13 @@ def _row_wise_dot(vecs1, vecs2):
 def get_filter(theta_sum, theta_diffs, height_lengths, light_height, ext_height, nc_filt, nc_fac):
     """
     Filter out hit points that are too far away from slice where light hits cylinder
-    :param theta_sum:
-    :param theta_diffs:
-    :param height_lengths:
-    :param light_height:
-    :param ext_height:
-    :param nc_filt:
-    :param nc_fac:
+    :param theta_sum: Theta sums
+    :param theta_diffs: Theta diffs
+    :param height_lengths: Heights on cylinder axis
+    :param light_height: Height of light relative to camera
+    :param ext_height: Height of sample
+    :param nc_filt: Filter out points with diffuse reflection
+    :param nc_fac: Deviation factor for diffuse reflection
     :return: Mask containing 0 for each filtered out position
     """
 

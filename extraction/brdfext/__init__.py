@@ -19,6 +19,15 @@ VERISION = __version__
 
 
 def compute_brdf(samp_path, ref_path, light_path, samp_rot, params_file):
+    """
+    Computes BRDF values
+    :param samp_path: Path to folder with sample images
+    :param ref_path: Path to folder with reference images
+    :param light_path: Path to folder with light images
+    :param samp_rot: Rotation of sample
+    :param params_file: Path to parameters file for computation
+    :return: None
+    """
 
     # Define console output format
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(threadName)s %(message)s')
@@ -71,6 +80,12 @@ def compute_brdf(samp_path, ref_path, light_path, samp_rot, params_file):
 
 
 def _compute_light_position(path, params):
+    """
+    Computes position of light
+    :param path: Path to folder with light images
+    :param params: Parameters for computation
+    :return: Light position and height relative to camera
+    """
 
     # Try to load precomputed data
     data_file_path = os.path.join(path, 'tmp.pkl')
@@ -140,6 +155,15 @@ def _compute_light_position(path, params):
 
 
 def _extract_data(path, light_trans, light_height, rot, params):
+    """
+    Extracts raw BRDF data
+    :param path: Path to folder with images for extraction
+    :param light_trans: Light translation vector
+    :param light_height: Light height relative to camera
+    :param rot: Rotation of sample
+    :param params: Parameters for computation
+    :return: BRDF data
+    """
 
     # Try to load precomputed data
     data_file_path = os.path.join(path, 'tmp.pkl')
