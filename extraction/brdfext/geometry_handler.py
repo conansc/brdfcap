@@ -207,14 +207,25 @@ def _rotate_around_axis(axes, vecs, deg):
 
 def _row_wise_dot(vecs1, vecs2):
     """
-     TODO
+    Computes a row-wise dot product
+    :param vecs1: First set of vectors
+    :param vecs2: Second set of vectors
+    :return: Dot products
     """
     return np.sum(vecs1 * vecs2, axis=1)
 
 
 def get_filter(theta_sum, theta_diffs, height_lengths, light_height, ext_height, nc_filt, nc_fac):
     """
-     Filter out hit points that are too far away from slice where light hits cylinder
+    Filter out hit points that are too far away from slice where light hits cylinder
+    :param theta_sum:
+    :param theta_diffs:
+    :param height_lengths:
+    :param light_height:
+    :param ext_height:
+    :param nc_filt:
+    :param nc_fac:
+    :return: Mask containing 0 for each filtered out position
     """
 
     #

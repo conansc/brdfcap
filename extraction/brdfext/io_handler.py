@@ -5,6 +5,12 @@ import os
 
 
 def read_raw(raw_path, wb):
+    """
+    Reads and postprocesses a RAW file
+    :param raw_path: Path to RAW file
+    :param wb: Perform white balance
+    :return: Read RAW file and CFA pattern for each pixel in image
+    """
 
     raw = rawpy.imread(raw_path)
 
@@ -22,12 +28,22 @@ def read_raw(raw_path, wb):
 
 
 def save_data(path, obj):
+    """
+    Writes an object to a file
+    :param path: Path to file
+    :param obj: Object to write to file
+    :return: Void
+    """
     with open(path, 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 def load_data(path):
-
+    """
+    Reads an object from a file
+    :param path: Path to file
+    :return: Read object
+    """
     if not os.path.isfile(path):
         return None
 

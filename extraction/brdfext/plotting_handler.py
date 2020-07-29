@@ -4,13 +4,30 @@ import os
 
 
 def draw_highlighted_points(img, points, color=[0, 0, 255], circ=0, inv=False):
+    """
+    Highlights points in an image
+    :param img: Input image to highlight in
+    :param points: Coordinates of points to highlight
+    :param color: Color for highlighting
+    :param circ: Size of area to highlight
+    :param inv: Swap x and y coordinates
+    :return: Image with highlighted points
+    """
     for point in points:
         img = draw_highlighted_point(img, point, color, circ, inv)
     return img
 
 
 def draw_highlighted_point(img, point, color, circ, inv):
-
+    """
+    Highlights a point in an image
+    :param img: Input image to highlight in
+    :param point: Coordinates of point to highlight
+    :param color: Color for highlighting
+    :param circ: Size of area to highlight
+    :param inv: Swap x and y coordinates
+    :return: Image with highlighted point
+    """
     height, width, _ = img.shape
     color = np.array(color)
     point = np.squeeze(point)
@@ -38,8 +55,21 @@ def draw_highlighted_point(img, point, color, circ, inv):
     return img
 
 
-def plot_2d(path, name, ills, theta_ins, theta_outs, phi_diffs, cfa, axis_names, c_names, only_perfect=False):
-
+def plot_brdf(path, name, ills, theta_ins, theta_outs, phi_diffs, cfa, axis_names, c_names, only_perfect=False):
+    """
+    Plots BRDF values
+    :param path: Path to save image in
+    :param name: Name of file to save
+    :param ills: Illumination values
+    :param theta_ins: Theta in values
+    :param theta_outs: Theta out values
+    :param phi_diffs: Phi diff values
+    :param cfa: CFA values
+    :param axis_names: Name of axes in plot
+    :param c_names: Name of colors per CFA channel
+    :param only_perfect: Plot only perfect reflection (theta_in == theta_out)
+    :return: None
+    """
     xs = theta_ins - theta_outs
     xs /= np.pi
     xs *= 180

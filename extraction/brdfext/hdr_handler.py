@@ -9,41 +9,28 @@ import ctypes
  © Sebastian Cucerca
 """
 
-#
-# def compute(ldr_vals, exp_times, par_comp):
-#     """
-#      TODO
-#     """
-#
-#     # Compute HDR image by using cluster method
-#     if par_comp:
-#         hdr_vals = _compute_hdr_par(ldr_vals, exp_times)
-#     else:
-#         hdr_vals = _compute_hdr_seq(ldr_vals, exp_times)
-#
-#     # Save HDR images
-#     #hdr_tm = naive_tone_mapping(hdr_file)
-#     #io.write_img(hdr_tm, Params.MAT_PATH, "hdr", "tiff")
-#
-#     # Draw computed HDR values
-#     #img = Params.CALIB_IMG.copy()
-#     #img[img_pts[:, 0], img_pts[:, 1]] = np.array([0, 0, 255])
-#     #FileHandler.write_img(img, Params.MAT_PATH, "sampled")
-#
-#     return hdr_vals
 
-
-def _to_np_arr(mp_arr):
+def _to_np_arr(buff):
     """
-     TODO
+    Converts a buffer to a 1-dimensional array
+    :param mp_arr: Buffer to be converted
+    :return: Converted array
     """
-    return np.frombuffer(mp_arr.get_obj())
+    return np.frombuffer(buff.get_obj())
 
 
 def _init_pool(shared_ldr_vals_, shared_ldr_vals_shape_, shared_nzno_ldr_, shared_nzno_ldr_shape_,
                shared_exp_times_, shared_regs_, shared_regs_shape_):
     """
-     TODO
+    Initializes global variables for multiprocessing
+    :param shared_ldr_vals_: LDR values
+    :param shared_ldr_vals_shape_: Shape of LDR values
+    :param shared_nzno_ldr_: Non-zero non-one values
+    :param shared_nzno_ldr_shape_: Shape of non-zero non-one values values
+    :param shared_exp_times_: Exposure times
+    :param shared_regs_: Regression parameters
+    :param shared_regs_shape_: Shape of regression parameters
+    :return:
     """
 
     global shared_ldr_vals
@@ -64,10 +51,13 @@ def _init_pool(shared_ldr_vals_, shared_ldr_vals_shape_, shared_nzno_ldr_, share
 
 def compute_hdr_par(ldr_vals, exp_times):
     """
-     TODO
+    Computes HDR values with parallel computing
+    :param ldr_vals: LDR values
+    :param exp_times: Exposure times of LDR values
+    :return: HDR values
     """
 
-    logging.info("Computing HDR with parallel cluster method.")
+    logging.info("Computing HDR")
 
     nzno_ldr = np.zeros(ldr_vals.shape, dtype=bool)
     nzno_ldr[np.where((0 < ldr_vals) & (ldr_vals < 1))] = 1
@@ -118,7 +108,9 @@ def compute_hdr_par(ldr_vals, exp_times):
 
 def _regression(n):
     """
-     TODO
+    Computes regression for LDR values and samples fitted line at values 1
+    :param n: Indices of LDR values to compute
+    :return: None
     """
 
     ldr_vals = _to_np_arr(shared_ldr_vals)
@@ -154,10 +146,13 @@ def _regression(n):
 
 def compute_hdr_seq(ldr_vals, exp_times):
     """
-     TODO
+    Computes HDR values sequentially
+    :param ldr_vals: LDR values
+    :param exp_times: Exposure times of LDR values
+    :return: HDR values
     """
 
-    logging.info("Computing HDR with cluster method")
+    logging.info("Computing HDR")
 
     regs = np.zeros((ldr_vals.shape[1], 2))
 

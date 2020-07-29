@@ -8,32 +8,46 @@ import logging
 """
 
 
-def get_patch_factor(ref_mean, samp_mean):
+def get_corr_fac(ref_mean, samp_mean):
     """
-     TODO
+    Computes correction factor between two white patches
+    :param ref_mean: Value of reference white patch
+    :param samp_mean: Value of sample white patch
+    :return: Correction factor
     """
 
     if ref_mean is None:
         ref_mean = samp_mean
-    norm_fac = ref_mean / samp_mean
-    logging.info("Norm factor is %.3f(%.5f, %.5f)" % (norm_fac, samp_mean, ref_mean))
-    return norm_fac
+    corr_fac = ref_mean / samp_mean
+    logging.info("Correction factor is %.3f(%.5f, %.5f)" % (corr_fac, samp_mean, ref_mean))
+    return corr_fac
 
 
-def apply_norm_factor(vals, facs):
+def apply_corr_fac(vals, facs):
     """
-     TODO
+    Multiplies illumination values by multiple factors
+    :param vals: Illumination values
+    :param facs: Factors
+    :return: Corrected illumination values
     """
 
-    new_vals = vals.copy()
+    corr_vals = vals.copy()
     for fac in facs:
-        new_vals *= fac
-    return new_vals
+        corr_vals *= fac
+    return corr_vals
 
 
 def normalize_ills(ref_unnorm_ills, ref_cmp_vals, ref_cfa, samp_unnorm_ills, samp_cmp_vals, samp_cfa):
     """
-     TODO
+    Normalize sample illumination values by dividing by reference illumination values
+    with similar geometric properties
+    :param ref_unnorm_ills: Unnormalized reference illumination values
+    :param ref_cmp_vals: Geometric properties of reference
+    :param ref_cfa: CFA values of reference
+    :param samp_unnorm_ills: Unnormalized sample illumination values
+    :param samp_cmp_vals: Geometric properties of sample
+    :param samp_cfa: CFA values of sample
+    :return: Normalized sample illuminations
     """
 
     logging.info("Normalizing values")

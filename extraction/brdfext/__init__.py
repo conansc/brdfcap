@@ -26,6 +26,9 @@ def compute_brdf(samp_path, ref_path, light_path, samp_rot, params_file):
     # Load parameters for current instance of extraction
     params = parameter_handler.get_params(params_file)
 
+    # Compute camera intrinsics
+    intrinsics_handler.compute(params.cam_setup, params.raw_ext, params.cb_size, params.square_size)
+
     # Log
     logging.info("Start processing " + samp_path)
 
@@ -38,16 +41,20 @@ def compute_brdf(samp_path, ref_path, light_path, samp_rot, params_file):
     # Compute value map of sample
     samp_brdf_data = _extract_data(samp_path, light_pos, light_height, samp_rot, params)
 
-    # Normalize extracted illuminances to get absolute brdf values
+    # Normalize illuminances using diffuse reference values
     ref_cmp_vals = np.transpose(np.vstack([ref_brdf_data[v] for v in params.norm_vars]))
     samp_cmp_vals = np.transpose(np.vstack([samp_brdf_data[v] for v in params.norm_vars]))
     corr_cyl_ills = radiometry_handler.normalize_ills(ref_brdf_data['unnorm_cyl_ills'], ref_cmp_vals,
                                                       ref_brdf_data['cfa'], samp_brdf_data['unnorm_cyl_ills'],
                                                       samp_cmp_vals, samp_brdf_data['cfa'])
 
-    patch_fac = radiometry_handler.get_patch_factor(ref_brdf_data['patch_ill'], samp_brdf_data['patch_ill'])
-    norm_cyl_ills = radiometry_handler.apply_norm_factor(corr_cyl_ills, [params.corr_fac, patch_fac])
+    # Compute correction factor from white patches
+    patch_fac = radiometry_handler.get_corr_fac(ref_brdf_data['patch_ill'], samp_brdf_data['patch_ill'])
 
+    # Compute absolute BRDF values
+    norm_cyl_ills = radiometry_handler.apply_corr_fac(corr_cyl_ills, [params.corr_fac, patch_fac])
+
+    # Add normalized illuminations to BRDF data
     samp_brdf_data['norm_cyl_ills'] = norm_cyl_ills
 
     # Write BRDF data
@@ -55,12 +62,12 @@ def compute_brdf(samp_path, ref_path, light_path, samp_rot, params_file):
     io_handler.save_data(brdf_file_path, samp_brdf_data)
 
     # Visualize BRDF data
-    plotting_handler.plot_2d(samp_path, "values_unnorm", samp_brdf_data['unnorm_cyl_ills'], samp_brdf_data['theta_ins'],
-                             samp_brdf_data['theta_outs'], samp_brdf_data['phi_diffs'], samp_brdf_data['cfa'],
-                             ["θi - θo", "Absolute illuminance", samp_path], params.c_names)
-    plotting_handler.plot_2d(samp_path, "values_norm", samp_brdf_data['norm_cyl_ills'], samp_brdf_data['theta_ins'],
-                             samp_brdf_data['theta_outs'], samp_brdf_data['phi_diffs'], samp_brdf_data['cfa'],
-                             ["θi - θo", "Normalized illuminance", samp_path], params.c_names)
+    plotting_handler.plot_brdf(samp_path, "values_unnorm", samp_brdf_data['unnorm_cyl_ills'], samp_brdf_data['theta_ins'],
+                               samp_brdf_data['theta_outs'], samp_brdf_data['phi_diffs'], samp_brdf_data['cfa'],
+                               ["θi - θo", "Absolute illuminance", samp_path], params.c_names)
+    plotting_handler.plot_brdf(samp_path, "values_norm", samp_brdf_data['norm_cyl_ills'], samp_brdf_data['theta_ins'],
+                               samp_brdf_data['theta_outs'], samp_brdf_data['phi_diffs'], samp_brdf_data['cfa'],
+                               ["θi - θo", "Normalized illuminance", samp_path], params.c_names)
 
 
 def _compute_light_position(path, params):
@@ -72,8 +79,7 @@ def _compute_light_position(path, params):
         return data
 
     # Load camera intrinsics
-    cam_mtx, dist_coeffs, _ = intrinsics_handler.get_cam_params(params.cam_setup, params.raw_ext,
-                                                                params.cb_size, params.square_size)
+    cam_mtx, dist_coeffs = intrinsics_handler.load(params.cam_setup)
 
     # Load calibration image
     calib_img_path = os.path.join(path, 'calib', '0.' + params.raw_ext)
@@ -142,8 +148,7 @@ def _extract_data(path, light_trans, light_height, rot, params):
         return data
 
     # Load camera intrinsics
-    cam_mtx, dist_coeffs, _ = intrinsics_handler.get_cam_params(params.cam_setup, params.raw_ext,
-                                                                params.cb_size, params.square_size)
+    cam_mtx, dist_coeffs, _ = intrinsics_handler.load(params.cam_setup)
 
     # Load calibration image
     calib_img_path = os.path.join(path, 'calib', '0.' + params.raw_ext)

@@ -8,9 +8,19 @@ import cv2
 """
 
 
-def compute(img, cyl_trans, cyl_rot, cam_trans, samp_rad, cyl_height, cam_mtx, dist_coeffs):
+def compute(img, cyl_trans, cyl_rot, cam_trans, samp_rad, samp_height, cam_mtx, dist_coeffs):
     """
-     TODO
+    Performs raytracing and computes for a given cylinder position
+    the corresponding world coordinates (3D) for given image points (2D)
+    :param img: Calibration image of cylinder with sample
+    :param cyl_trans: Cylinder translation vector
+    :param cyl_rot: Cylinder rotation
+    :param cam_trans: Camera translation vector
+    :param samp_rad: Radius of cylinder with applied sample
+    :param samp_height: Height of sample on cylinder
+    :param cam_mtx: Camera matrix
+    :param dist_coeffs: Distortion coefficients of camera setup
+    :return: Pair of image (2D) and world (3D) coordinates
     """
 
     logging.info("Computing world points")
@@ -69,8 +79,8 @@ def compute(img, cyl_trans, cyl_rot, cam_trans, samp_rad, cyl_height, cam_mtx, d
     trans_ray_ds = trans_ray_ds * np.expand_dims(ts, axis=1)
     trans_ray_ds = trans_ray_ds + trans_ray_o
 
-    ids = np.intersect1d(np.where(trans_ray_ds[:, 1] > (-cyl_height/2)),
-                         np.where(trans_ray_ds[:, 1] < (cyl_height/2)))
+    ids = np.intersect1d(np.where(trans_ray_ds[:, 1] > (-samp_height / 2)),
+                         np.where(trans_ray_ds[:, 1] < (samp_height / 2)))
 
     trans_ray_ds = trans_ray_ds[ids]
     pts = pts[ids]

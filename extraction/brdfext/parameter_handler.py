@@ -10,6 +10,9 @@ import ast
 
 
 class Params:
+    """
+    Class for storing parameters initialized with default values
+    """
     
     raw_ext = "nef"
     cam_setup = "d750_105mm"
@@ -54,7 +57,9 @@ class Params:
 
 def get_params(params_file):
     """
-     TODO
+    Parses a parameters file and returns parameters
+    :param params_file: Path to parameters file
+    :return: Class containing parameters
     """
 
     params = Params()

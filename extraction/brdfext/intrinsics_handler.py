@@ -10,20 +10,42 @@ import os
 """
 
 
-def get_cam_params(camera_setup, img_ext, checkerboard_size, square_size):
+def compute(camera_setup, img_ext, checkerboard_size, square_size):
     """
-    TODO
+    Computes and saves camera parameters
+    :param camera_setup: Name of camera setup
+    :param img_ext: Extension of RAW files
+    :param checkerboard_size: Size of checkerboard
+    :param square_size: Size of a square on checkerboard
+    :return: None
     """
 
-    logging.info("Loading camera matrices.")
+    intr_file_path = os.path.join('calibration', camera_setup, 'cam_params.npy')
+
+    if os.path.isfile(intr_file_path):
+        return
+
+    intr_folder_path = os.path.join('calibration', camera_setup)
+    [img_paths, _, _] = _get_img_paths(intr_folder_path, img_ext)
+    [mtx, dist, new_mtx] = _calibrate(img_paths, checkerboard_size, square_size)
+    _save('calibration', camera_setup, mtx, dist, new_mtx)
+
+
+def load(camera_setup):
+    """
+    Loads camera parameters
+    :param camera_setup: Name of camera setup
+    :return: List with camera intrinsics matrix,
+                              distortion coefficients and
+                              optimal intrinsics matrix
+    """
+
+    logging.info("Loading camera intrinsics.")
 
     intr_file_path = os.path.join('calibration', camera_setup, 'cam_params.npy')
 
     if not os.path.isfile(intr_file_path):
-        intr_folder_path = os.path.join('calibration', camera_setup)
-        [img_paths, _, _] = _get_img_paths(intr_folder_path, img_ext)
-        [mtx, dist, new_mtx] = _calibrate(img_paths, checkerboard_size, square_size)
-        _write_cam_params('calibration', camera_setup, mtx, dist, new_mtx)
+        logging.error('Could find intrinsics file for camera setup. Please compute intrinsics first.')
 
     cam_params = np.load(intr_file_path, allow_pickle=True)
     return cam_params
@@ -31,10 +53,16 @@ def get_cam_params(camera_setup, img_ext, checkerboard_size, square_size):
 
 def _calibrate(img_paths, checkerboard_size, square_size):
     """
-    TODO
+    Computes the camera parameters
+    :param img_paths: Paths to checkerboard RAW images
+    :param checkerboard_size: Size of checkerboard
+    :param square_size: Size of a square on checkerboard
+    :return: List with camera intrinsics matrix,
+                              distortion coefficients and
+                              optimal intrinsics matrix
     """
 
-    logging.info("Calibrating device.")
+    logging.info("Computing camera intrinsics.")
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -67,8 +95,6 @@ def _calibrate(img_paths, checkerboard_size, square_size):
 
             img = cv2.drawChessboardCorners(img, (cols, rows), corners2, ret)
 
-            #cv2.imwrite(os.path.join('calibration', str(idx) + '.png'), img)
-
         else:
             logging.warning("Could not find chessboard in image.")
 
@@ -93,17 +119,31 @@ def _calibrate(img_paths, checkerboard_size, square_size):
     return [mtx, dist, new_mtx]
 
 
-def _write_cam_params(intr_folder, camera_setup, mtx, dist, new_mtx):
+def _save(intr_folder, camera_setup, mtx, dist, new_mtx):
     """
-    TODO
+    Writes camera parameters
+    :param intr_folder: Intrinsics base folder
+    :param camera_setup: Name of camera setup
+    :param mtx: Camera's intrinsics matrix
+    :param dist: Distortion coefficients
+    :param new_mtx: Optimal intrinsics matrix
+    :return: None
     """
 
     logging.info("Writing parameters file.")
-    intr_path = os.path.join(intr_folder, camera_setup, intr_folder)
+    intr_path = os.path.join(intr_folder, camera_setup, 'cam_params.npy')
     np.save(intr_path, [mtx, dist, new_mtx])
 
 
 def _get_img_paths(path, img_ext):
+    """
+    Collects information about images of checkerboard
+    :param path: Base path to checkerboard images
+    :param img_ext: Extension of RAW files
+    :return: List with paths to images,
+                       names of images and
+                       number of images
+    """
 
     img_names = [fn for fn in os.listdir(path) if fn.lower().endswith(img_ext.lower())]
     img_paths = [os.path.join(path, fn) for fn in img_names]

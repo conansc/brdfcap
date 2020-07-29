@@ -39,7 +39,10 @@ def compute_pose(img, img_pts, obj_pts, cam_mtx, dist_coeffs, refine_steps):
 
 def _get_max_error_idx(img_pts, proj_img_pts):
     """
-     TODO
+    Finds the corner
+    :param img_pts:
+    :param proj_img_pts:
+    :return: Index of corner point with highest error
     """
 
     max_error = None
@@ -58,7 +61,10 @@ def _get_max_error_idx(img_pts, proj_img_pts):
 
 def _compute_error(img_pts, proj_img_pts):
     """
-     TODO
+    Computes reprojection error for corner points.
+    :param img_pts: Actual reference image points (2D) for corners
+    :param proj_img_pts: Reprojected image points (2D) for corners
+    :return: Reprojection error value
     """
 
     error = 0.0
