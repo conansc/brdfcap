@@ -1,0 +1,33 @@
+# filetypes
+*.CR2
+*.cr2
+*.exr
+*.EXR
+*.png
+*.PNG
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.nef
+*.NEF
+*.tif
+*.tiff
+*.TIF
+*.TIF
+*.mat
+*.dng
+*.DNG
+*.svg
+*.SVG
+*.txt
+*.TXT
+*.pyc
+
+# Folders
+.idea/
+Data/
+data/
+debug/
+Debug/
+__pycache__/
