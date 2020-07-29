@@ -1,4 +1,4 @@
-from appcap.argument_handler import ArgumentHandler
+from brdfacq.argument_handler import ArgumentHandler
 import RPi.GPIO as GPIO
 
 

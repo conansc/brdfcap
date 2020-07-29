@@ -1,6 +1,6 @@
-from appcap.capture_handler import CaptureHandler
-from appcap.raspberry_lighting import RaspberryLighting
-from appcap.argument_handler import ArgumentHandler
+from brdfacq.capture_handler import CaptureHandler
+from brdfacq.raspberry_lighting import RaspberryLighting
+from brdfacq.argument_handler import ArgumentHandler
 import os
 import datetime as dt
 

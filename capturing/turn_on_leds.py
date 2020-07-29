@@ -1,6 +1,6 @@
-import appcap
+import brdfacq
 
 if __name__ == "__main__":
 
-    lh = appcap.RaspberryLighting()
+    lh = brdfacq.RaspberryLighting()
     lh.turn_on_all()

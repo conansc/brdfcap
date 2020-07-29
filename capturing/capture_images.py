@@ -1,6 +1,6 @@
-import appcap
+import brdfacq
 
 
 if __name__ == "__main__":
-    appcap.capture()
+    brdfacq.capture()
 
