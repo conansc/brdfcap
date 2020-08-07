@@ -94,7 +94,7 @@ def _compute_light_position(path, params):
         return data
 
     # Load camera intrinsics
-    cam_mtx, dist_coeffs = intrinsics_handler.load(params.cam_setup)
+    cam_mtx, dist_coeffs, _ = intrinsics_handler.load(params.cam_setup)
 
     # Load calibration image
     calib_img_path = os.path.join(path, 'calib', '0.' + params.raw_ext)
